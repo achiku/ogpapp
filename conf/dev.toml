@@ -1,0 +1,8 @@
+base_url = "http://localhost:8080"
+api_server_port = "8080"
+tls = false
+koruri_bold_font_path = "../../Koruri-Bold.ttf"
+client_asset_path = "./app"
+default_image_width = 1200
+default_image_height = 630
+default_font_size = 100.0

@@ -21,3 +21,5 @@ ogp-app
 
 .env
 *.pem
+
+.DS_Store

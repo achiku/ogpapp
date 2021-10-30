@@ -2,7 +2,7 @@ root_path = "."
 
 watch_target_dirs = ["../../"]
 watch_exclude_dirs = [".git", "tmp", "data"]
-watch_file_ext = [".go"]
+watch_dir_only = true
 
 build_target_dir = "./tmp"
 build_target_name = "ogp-server"

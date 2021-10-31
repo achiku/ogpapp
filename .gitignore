@@ -17,9 +17,14 @@
 tmp
 data
 
-ogp-app
+ogpapp
 
 .env
 *.pem
 
 .DS_Store
+
+### frontend
+
+node_modules
+dist

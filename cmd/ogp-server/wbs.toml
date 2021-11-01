@@ -1,7 +1,7 @@
 root_path = "."
 
 watch_target_dirs = ["../../"]
-watch_exclude_dirs = [".git", "tmp", "data"]
+watch_exclude_dirs = [".git", "tmp", "data", "node_modules"]
 watch_dir_only = true
 
 build_target_dir = "./tmp"

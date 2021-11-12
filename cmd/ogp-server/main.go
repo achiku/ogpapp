@@ -30,7 +30,7 @@ func main() {
 		}
 	case true:
 		cfg := &tls.Config{
-			MinVersion:               tls.VersionTLS12,
+			MinVersion:               tls.VersionTLS13,
 			CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
 			PreferServerCipherSuites: true,
 			CipherSuites: []uint16{

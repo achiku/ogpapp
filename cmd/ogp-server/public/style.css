@@ -1,0 +1,79 @@
+#app {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin: 16px auto 0;
+  display: flex;
+  justify-content: center;
+  align-items: top;
+  flex-direction: column;
+  text-align: center;
+}
+
+.title {
+  font-family: "Lato", sans-serif;
+  font-weight: 900;
+  font-size: 48px;
+  color: #35495e;
+  letter-spacing: 0.5px;
+  a {
+    color: #2c3e50;
+    text-decoration: none;
+    &:hover {
+      color: saturate(#2c3e50, 90%);
+    }
+  }
+}
+
+.form {
+  margin: 0 auto;
+  max-width: 320px;
+  button {
+    background-image: linear-gradient(to left, #fff, #f2f2f2);
+    border: 1px solid #e3e3e3;
+    border-radius: 3px;
+    width: 63px;
+    height: 34px;
+    &:hover {
+      border-color: #bdbdbd;
+    }
+  }
+}
+
+.word-input {
+  background: #fff;
+  border-radius: 4px;
+  padding: 12px 8px 12px 18px;
+  margin-bottom: 15px;
+  position: relative;
+  box-shadow: 0 0 5px rgba(16, 14, 23, 0.25);
+  &.noshadow {
+    box-shadow: none;
+  }
+}
+
+.form input {
+  border: 0;
+  font-family: 24px;
+  font-size: 16px;
+  width: 210px;
+  margin-right: 5px;
+  outline: none;
+}
+
+.image {
+  margin-top: 20px;
+  img {
+    box-shadow: 0 0 5px rgba(16, 14, 23, 0.25);
+  }
+}
+@media screen and (max-width: 480px) {
+  .image {
+    img {
+      max-width: 320px;
+    }
+  }
+}

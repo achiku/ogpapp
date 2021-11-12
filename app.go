@@ -1,9 +1,9 @@
 package ogpapp
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -13,6 +13,7 @@ import (
 	"github.com/golang/freetype/truetype"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 )
 
 // App ogp.app
@@ -22,7 +23,7 @@ type App struct {
 	OgpPagePath   string
 	IndexPagePath string
 	OgpPageTmpl   *template.Template
-	IndexPageTmpl string
+	IndexPageTmpl *template.Template
 }
 
 // NewApp create app
@@ -35,9 +36,9 @@ func NewApp(cfg *Config) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	pf, err := os.Open(path.Join("app", "public", "p.html"))
+	pf, err := os.Open(path.Join("public", "p.html"))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to parse p.html")
 	}
 	defer pf.Close()
 
@@ -49,13 +50,17 @@ func NewApp(cfg *Config) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	idxf, err := os.Open(path.Join("app", "public", "index.html"))
+	idxf, err := os.Open(path.Join("public", "index.html"))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to parse index.html")
 	}
 	defer idxf.Close()
 
 	idxbuf, err := ioutil.ReadAll(idxf)
+	if err != nil {
+		return nil, err
+	}
+	idxPageTmpl, err := template.New("index").Parse(string(idxbuf))
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +69,7 @@ func NewApp(cfg *Config) (*App, error) {
 		Config:        cfg,
 		KoruriBold:    ft,
 		OgpPageTmpl:   ogpPageTmpl,
-		IndexPageTmpl: string(idxbuf),
+		IndexPageTmpl: idxPageTmpl,
 	}, nil
 }
 
@@ -86,43 +91,32 @@ func (app *App) OgpPage(w http.ResponseWriter, r *http.Request) {
 
 // IndexPage display index page
 func (app *App) IndexPage(w http.ResponseWriter, r *http.Request) {
+	data := map[string]string{
+		"baseURL": app.Config.BaseURL,
+	}
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, app.IndexPageTmpl)
+	if err := app.IndexPageTmpl.Execute(w, data); err != nil {
+		return
+	}
 	return
-}
-
-type createImageReq struct {
-	Words string `json:"words"`
 }
 
 // CreateImage create ogp image API
 func (app *App) CreateImage(w http.ResponseWriter, r *http.Request) {
-	var d createImageReq
-	if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
-		// logger.Error().Msgf("decode failed: %s", err)
+	if err := r.ParseForm(); err != nil {
 		return
 	}
-	words := d.Words
+	words := r.Form.Get("words")
 	id := uuid.New()
+	log.Printf("%s, %s", words, id)
 	filename := fmt.Sprintf("%s.png", id.String())
 	filepath := path.Join("data", filename)
 	wi, he, fs := app.Config.DefaultImageWidth, app.Config.DefaultImageHeight, app.Config.DefaultFontSize
 	if err := createImage(wi, he, fs, app.KoruriBold, words, filepath); err != nil {
-		// logger.Error().Msgf("create image failed: %s", err)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	data := map[string]string{
-		"words":   words,
-		"file":    filename,
-		"id":      id.String(),
-		"baseURL": app.Config.BaseURL,
-	}
-	w.Header().Set("Content-type", "application/json")
-	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(data); err != nil {
-		// logger.Printf("encode failed: %s", err)
-		return
-	}
+	redirectURL := fmt.Sprintf("%s/p/%s", app.Config.BaseURL, id.String())
+	log.Print(redirectURL)
+	http.Redirect(w, r, redirectURL, http.StatusFound)
 	return
 }

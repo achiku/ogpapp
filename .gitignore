@@ -28,3 +28,6 @@ ogpapp
 
 node_modules
 dist
+
+cmd/ogp-server/ogp-server
+cmd/ogp-cli/ogp-cli

@@ -21,7 +21,7 @@ func main() {
 		log.Fatalf("NewServer failed: %s", err)
 	}
 
-	p := fmt.Sprintf("localhost:%s", s.Config.APIServerPort)
+	p := fmt.Sprintf("127.0.0.1:%s", s.Config.APIServerPort)
 	switch s.Config.TLS {
 	case false:
 		if err := http.ListenAndServe(p, s.Mux); err != nil {

@@ -22,17 +22,26 @@ func main() {
 		log.Fatalf("NewServer failed: %s", err)
 	}
 
-	p := fmt.Sprintf("127.0.0.1:%s", s.Config.APIServerPort)
+	var p string
+	if s.Config.LocalDev {
+		p = fmt.Sprintf("localhost:%s", s.Config.APIServerPort)
+	} else {
+		p = fmt.Sprintf(":%s", s.Config.APIServerPort)
+	}
 	switch s.Config.TLS {
 	case false:
+		log.Printf("starting dev http server at %s...", p)
 		if err := http.ListenAndServe(p, s.Mux); err != nil {
 			log.Fatalf("Failed to run HTTP server without TLS: %v", err)
 		}
 	case true:
+		log.Printf("starting tls server at %s...", p)
+		log.Printf("server cert path=%s", s.Config.ServerCertPath)
+		log.Printf("server key path=%s", s.Config.ServerKeyPath)
 		cfg := &tls.Config{
-			MinVersion:               tls.VersionTLS13,
+			MinVersion:               tls.VersionTLS12,
 			CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
-			PreferServerCipherSuites: true,
+			PreferServerCipherSuites: false,
 			CipherSuites: []uint16{
 				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 				tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
@@ -41,7 +50,6 @@ func main() {
 			},
 		}
 		srv := http.Server{
-			Addr:      p,
 			Handler:   s.Mux,
 			TLSConfig: cfg,
 		}

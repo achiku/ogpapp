@@ -17,6 +17,7 @@ type Config struct {
 	DefaultImageWidth  int     `toml:"default_image_width"`
 	DefaultImageHeight int     `toml:"default_image_height"`
 	DefaultFontSize    float64 `toml:"default_font_size"`
+	LocalDev           bool    `toml:"local_dev"`
 	ServerCertPath     string  `toml:"server_cert_path"`
 	ServerKeyPath      string  `toml:"server_key_path"`
 }

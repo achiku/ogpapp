@@ -2,6 +2,8 @@ package ogpapp
 
 import (
 	"fmt"
+	"image"
+	"image/png"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,6 +16,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
+	"golang.org/x/image/font"
+	"golang.org/x/image/math/fixed"
 )
 
 // App ogp.app
@@ -112,7 +116,34 @@ func (app *App) CreateImage(w http.ResponseWriter, r *http.Request) {
 	filename := fmt.Sprintf("%s.png", id.String())
 	filepath := path.Join("data", filename)
 	wi, he, fs := app.Config.DefaultImageWidth, app.Config.DefaultImageHeight, app.Config.DefaultFontSize
-	if err := createImage(wi, he, fs, app.KoruriBold, words, filepath); err != nil {
+
+	bk := image.NewRGBA(image.Rect(0, 0, wi, he))
+	face := truetype.NewFace(app.KoruriBold, &truetype.Options{
+		Size: fs,
+	})
+	dr := &font.Drawer{
+		Dst:  bk,
+		Src:  image.Black,
+		Face: face,
+		Dot:  fixed.Point26_6{},
+	}
+	dOpt := &DrawStringOpts{
+		ImageWidth:       fixed.I(wi),
+		ImageHeight:      fixed.I(he),
+		Verbose:          false,
+		FontSize:         fixed.I(int(fs)),
+		LineSpace:        fixed.I(5),
+		VerticalMargin:   fixed.I(10),
+		HorizontalMargin: fixed.I(40),
+	}
+	DrawStringWrapped(dr, words, dOpt)
+	outfile, err := os.Create(filepath)
+	if err != nil {
+		return
+	}
+	defer outfile.Close()
+
+	if err := png.Encode(outfile, bk); err != nil {
 		return
 	}
 	redirectURL := fmt.Sprintf("%s/p/%s", app.Config.BaseURL, id.String())

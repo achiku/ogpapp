@@ -3,6 +3,7 @@ package ogpapp
 import (
 	"fmt"
 	"image"
+	"image/draw"
 	"image/png"
 	"io/ioutil"
 	"log"
@@ -118,6 +119,7 @@ func (app *App) CreateImage(w http.ResponseWriter, r *http.Request) {
 	wi, he, fs := app.Config.DefaultImageWidth, app.Config.DefaultImageHeight, app.Config.DefaultFontSize
 
 	bk := image.NewRGBA(image.Rect(0, 0, wi, he))
+	draw.Draw(bk, bk.Bounds(), image.White, image.ZP, draw.Src)
 	face := truetype.NewFace(app.KoruriBold, &truetype.Options{
 		Size: fs,
 	})
